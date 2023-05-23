@@ -1,33 +1,19 @@
 package org.binara.sachin.dto;
 
-public abstract class Product {
+public class Product {
     private final String name;
-    private final float price;
-    private int quantity;
+    private final double price;
 
-    public Product(String name, float price, int quantity) {
+    public Product(String name, double price) {
         this.name = name;
         this.price = price;
-        this.quantity = quantity;
-    }
-
-    public void purchase(int quantity){
-        this.quantity -= quantity;
-    }
-
-    public void addStock(int quantity){
-        this.quantity += quantity;
     }
 
     public String getName() {
         return name;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
-    }
-
-    public int getQuantity() {
-        return quantity;
     }
 }

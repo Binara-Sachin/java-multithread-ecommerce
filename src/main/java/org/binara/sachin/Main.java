@@ -1,7 +1,13 @@
 package org.binara.sachin;
 
+import org.binara.sachin.dto.Shop;
+
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello world!");
-    }
+    Shop shop = new Shop(5,1);
+    //open shop
+
+    // Run customer threads
+
+    //close shop
+
 }
