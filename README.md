@@ -4,23 +4,21 @@
 - Focusing on concurrent systems
   - Multithreading and thread safety
 
-## Design and Assumptions
+## Design
 - Shop
   - List of products
   - List of people
-  - Warehouse
+    - List of Cashiers
+    - List of Managers
   - customerQueue
 - Product
-  - A singleton class
   - Reference to the actual product that is stored in the shop
-  - Has a property named `stock` which is the quantity of the product
+  - Has a property named `stock` which is the quantity of the product available in the shop
+    - This property is thread safe
 - **People**: Each run on its own thread
   - **Customers**: Buy products
   - **Cashiers**: Check out customers
   - **Managers**: Restock products
-- Warehouse: Stores products
-  - **Stock**: Stores the quantity of each product
-    - Is synchronized
 - Shipment
 
 ### Products
@@ -30,7 +28,17 @@
 ### Customers
 - Customers have a list of shopping items then they enter the shop.
 - Customers will att all the items in the list to the cart (not buy).
-- When chaking out 
+- When checking out
+
+| Thread Type | Priority |
+|-------------|----------|
+| Customer    | 5        |
+| Cashier     | 7        |
+| Manager     | 10       |
+| Shipment    | 10       |
+
+## Assumptions
+
 
 ## How to run
 

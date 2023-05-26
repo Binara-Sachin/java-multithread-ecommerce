@@ -4,19 +4,26 @@ import org.binara.sachin.dto.people.Cashier;
 import org.binara.sachin.dto.people.Customer;
 import org.binara.sachin.dto.people.Manager;
 
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Shop {
-    private LinkedList<Product> productList;
-    private final LinkedList<Cashier> cashierList;
-    private final LinkedList<Manager> managerList;
-    private Warehouse warehouse;
-    private PriorityQueue<Customer> checkoutQueue;
-
+    private final ArrayList<Product> productList;
+    private final ArrayList<Cashier> cashierList;
+    private final ArrayList<Manager> managerList;
+    private final Set<Product> restockQueue; // A Set was used to avoid duplicate entries
+    private final BlockingQueue<Customer> checkoutQueue;
+    private final BlockingQueue<Item> newStockQueue;
+    private int noOfShipments;
+    private boolean isOpen;
 
     public Shop(int noOfCashiers, int noOfManagers) {
-        productList = new LinkedList<>();
+        isOpen = false;
+
+        productList = new ArrayList<>();
 
         productList.add(new Product("Bread", 1.5));
         productList.add(new Product("Milk", 2.5));
@@ -28,59 +35,91 @@ public class Shop {
         productList.add(new Product("Yogurt", 1.5));
         productList.add(new Product("Ice Cream", 2.5));
         productList.add(new Product("Cake", 3.0));
+        productList.add(new Product("Apple", 1.0));
+        productList.add(new Product("Orange", 1.0));
+        productList.add(new Product("Banana", 1.0));
+        productList.add(new Product("Pineapple", 2.0));
+        productList.add(new Product("Mango", 2.0));
+        productList.add(new Product("Papaya", 2.0));
+        productList.add(new Product("Pumpkin", 1.0));
+        productList.add(new Product("Potato", 1.0));
+        productList.add(new Product("Tomato", 1.0));
+        productList.add(new Product("Onion", 1.0));
 
-        cashierList = new LinkedList<>();
+        cashierList = new ArrayList<>();
         for (int i = 0; i < noOfCashiers; i++) {
-            cashierList.add(new Cashier());
+            cashierList.add(new Cashier(i,this));
         }
 
-        managerList = new LinkedList<>();
+        managerList = new ArrayList<>();
         for (int i = 0; i < noOfManagers; i++) {
-            managerList.add(new Manager());
+            managerList.add(new Manager(i, this));
         }
 
-        warehouse = new Warehouse(productList);
+        checkoutQueue = new LinkedBlockingQueue<>();
+        newStockQueue = new LinkedBlockingQueue<>();
+        restockQueue = new HashSet<>();
 
-        checkoutQueue = new PriorityQueue<>();
+        noOfShipments = 0;
     }
 
     public void openShop() {
         System.out.println("Shop is open");
+        isOpen = true;
 
         //Initialize cashier threads
         for (Cashier cashier : cashierList) {
-//            cashier.start();
+            Thread thread = new Thread(cashier);
+            thread.setPriority(7);
+            thread.start();
         }
 
         //Initialize manager threads
         for (Manager manager : managerList) {
-//            manager.start();
+            Thread thread = new Thread(manager);
+            thread.setPriority(10);
+            thread.start();
         }
     }
 
     public void closeShop() {
-        //Stop cashier threads
-        for (Cashier cashier : cashierList) {
-//            cashier.stop();
-        }
-
-        //Stop manager threads
-        for (Manager manager : managerList) {
-//            manager.stop();
-        }
-
+        isOpen = false;
         System.out.println("Shop is closed");
     }
 
-    public LinkedList<Product> getProductList() {
+    public ArrayList<Product> getProductList() {
         return productList;
     }
 
-    public int getProductAvailability(Product product) {
-        return warehouse.getStock(product);
+    public BlockingQueue<Customer> getCheckoutQueue() {
+        return checkoutQueue;
     }
 
-    public void getIntoToCheckoutQueue(Customer customer){
+    public void moveToCheckoutQueue(Customer customer){
         checkoutQueue.add(customer);
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public Set<Product> getRestockQueue() {
+        return restockQueue;
+    }
+
+    public void addProductToRestockQueue(Product product){
+        restockQueue.add(product);
+    }
+
+    public BlockingQueue<Item> getNewStockQueue() {
+        return newStockQueue;
+    }
+
+    public void addProductToNewStock(Item item){
+        newStockQueue.add(item);
+    }
+
+    public int recordNewShipment(){
+        return ++noOfShipments;
     }
 }

@@ -1,13 +1,21 @@
 package org.binara.sachin;
 
 import org.binara.sachin.dto.Shop;
+import org.binara.sachin.dto.people.Customer;
+import org.binara.sachin.util.Util;
 
 public class Main {
-    Shop shop = new Shop(5,1);
-    //open shop
+    public static void main(String[] args) {
+        Shop shop = new Shop(5,2);
+        shop.openShop();
 
-    // Run customer threads
+        int noOfCustomers = 10;
 
-    //close shop
+        for (int i = 0; i < noOfCustomers; i++) {
+            new Thread(new Customer(i, shop)).start();
+            Util.sleepRandomTime(1000);
+        }
 
+
+    }
 }
