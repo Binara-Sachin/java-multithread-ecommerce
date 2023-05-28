@@ -12,8 +12,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Shop {
     private final ArrayList<Product> productList;
-    private final ArrayList<Cashier> cashierList;
-    private final ArrayList<Manager> managerList;
+    private final ArrayList<Thread> cashierList;
+    private final ArrayList<Thread> managerList;
     private final Set<Product> restockQueue; // A Set was used to avoid duplicate entries
     private final BlockingQueue<Customer> checkoutQueue;
     private final BlockingQueue<Item> newStockQueue;
@@ -48,12 +48,12 @@ public class Shop {
 
         cashierList = new ArrayList<>();
         for (int i = 0; i < noOfCashiers; i++) {
-            cashierList.add(new Cashier(i,this));
+            cashierList.add(new Thread(new Cashier(i,this)));
         }
 
         managerList = new ArrayList<>();
         for (int i = 0; i < noOfManagers; i++) {
-            managerList.add(new Manager(i, this));
+            managerList.add(new Thread(new Manager(i,this)));
         }
 
         checkoutQueue = new LinkedBlockingQueue<>();
@@ -68,15 +68,13 @@ public class Shop {
         isOpen = true;
 
         //Initialize cashier threads
-        for (Cashier cashier : cashierList) {
-            Thread thread = new Thread(cashier);
+        for (Thread thread : cashierList) {
             thread.setPriority(7);
             thread.start();
         }
 
         //Initialize manager threads
-        for (Manager manager : managerList) {
-            Thread thread = new Thread(manager);
+        for (Thread thread : managerList) {
             thread.setPriority(10);
             thread.start();
         }
@@ -84,6 +82,18 @@ public class Shop {
 
     public void closeShop() {
         isOpen = false;
+
+        try {
+            for (Thread thread : cashierList) {
+                thread.join();
+            }
+            for (Thread thread : managerList) {
+                thread.join();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Shop is closed");
     }
 
@@ -99,6 +109,10 @@ public class Shop {
         checkoutQueue.add(customer);
     }
 
+    public int getCustomersInShop(){
+        return checkoutQueue.size();
+    }
+
     public boolean isOpen() {
         return isOpen;
     }
@@ -109,6 +123,7 @@ public class Shop {
 
     public void addProductToRestockQueue(Product product){
         restockQueue.add(product);
+        System.out.println(product.getName() + " added to restock queue");
     }
 
     public BlockingQueue<Item> getNewStockQueue() {

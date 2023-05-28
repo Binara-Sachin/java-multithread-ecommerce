@@ -5,8 +5,8 @@
   - Multithreading and thread safety
 
 ## TODO
-- [ ] SHop needs to close once all the customers are done
-- [ ] Fix customers buying products with 0 stock
+- [ ] Shop needs to close once all the customers are done
+- [x] Fix customers buying products with 0 stock
 - [ ] Add test cases
 - [ ] Add Assumptions in Comments
 - [ ] Finalize the Readme file

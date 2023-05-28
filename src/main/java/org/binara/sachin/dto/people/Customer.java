@@ -24,7 +24,7 @@ public class Customer implements Runnable{
 
         for (int i = 0; i < numberOfCartItems; i++) {
             Product product = Util.getRandomProduct(shop.getProductList());
-            int quantity = Util.getRandomNumberLessThan(product.getStockAmount());
+            int quantity = Util.getRandomNumberLessThan(10);
 
             if(!Util.productAlreadyInList(shoppingList, product)){
                 shoppingList.add(new Item(product, quantity));
@@ -42,17 +42,24 @@ public class Customer implements Runnable{
 
         while (shoppingList.size() > 0){
             Item item = shoppingList.getFirst();
+            int amountInStock = item.getProduct().getStockAmount();
 
-            if(item.getProduct().getStockAmount() < item.getQuantity()){
-                item.setQuantity(item.getProduct().getStockAmount());
+            if(amountInStock > 0){
+                if(amountInStock < item.getQuantity()){
+                    item.setQuantity(item.getProduct().getStockAmount());
+                    System.out.println(this.getName() + " wants " + item.getProduct().getName() + ". But only " + item.getQuantity() + " units are available");
+                }
+                addProductToCart(item);
+            } else {
+                System.out.println(this.getName() + " wants " + item.getProduct().getName() + ". But item is out of stock");
+                shoppingList.remove(item);
             }
 
-            addProductToCart(item);
             Util.sleepRandomTime(1000); //Assumption: Customer will take random amount of time to add products to cart
         }
 
         shop.moveToCheckoutQueue(this);
-        System.out.println(this.getName() + " is done shopping");
+        System.out.println(this.getName() + " is done shopping and went to checkout queue");
         Thread.yield();
     }
 

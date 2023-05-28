@@ -33,7 +33,7 @@ public class Cashier implements Runnable{
         System.out.println(this.getName() + " is Checking out " + customer.getName());
 
         customer.getCart().forEach(cartItem -> {
-            System.out.println("Checking out " + cartItem.getQuantity() + " " + cartItem.getProduct().getName());
+            System.out.println(this.getName() + " added " + cartItem.getQuantity() + " " + cartItem.getProduct().getName() + " to " + customer.getName() + "'s checkout cart");
 
             try {
                 cartItem.getProduct().purchase(cartItem.getQuantity());
