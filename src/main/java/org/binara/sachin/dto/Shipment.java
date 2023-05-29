@@ -26,7 +26,7 @@ public class Shipment implements Runnable{
 
     private void addProductsToShop() {
         products.forEach(product -> {
-            System.out.println("Adding " + product.getName() + " to new stock");
+            System.out.println(getName() + " arrived with " + product.getName() + " to add new stock");
             Item item = new Item(product, Constants.RESTOCK_AMOUNT);
             shop.addProductToNewStock(item);
         });

@@ -9,14 +9,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Shop {
     private final ArrayList<Product> productList;
     private final ArrayList<Thread> cashierList;
     private final ArrayList<Thread> managerList;
+    private final ArrayList<Thread> shipmentList;
     private final Set<Product> restockQueue; // A Set was used to avoid duplicate entries
+    ReentrantLock restockQueueLock = new ReentrantLock();
     private final BlockingQueue<Customer> checkoutQueue;
     private final BlockingQueue<Item> newStockQueue;
+    private final ArrayList<Long> salesList;
     private int noOfShipments;
     private boolean isOpen;
 
@@ -25,26 +29,26 @@ public class Shop {
 
         productList = new ArrayList<>();
 
-        productList.add(new Product("Bread", 1.5));
-        productList.add(new Product("Milk", 2.5));
-        productList.add(new Product("Biscuit", 0.5));
-        productList.add(new Product("Chocolate", 1.0));
-        productList.add(new Product("Butter", 3.0));
-        productList.add(new Product("Cheese", 2.0));
-        productList.add(new Product("Egg", 0.5));
-        productList.add(new Product("Yogurt", 1.5));
-        productList.add(new Product("Ice Cream", 2.5));
-        productList.add(new Product("Cake", 3.0));
-        productList.add(new Product("Apple", 1.0));
-        productList.add(new Product("Orange", 1.0));
-        productList.add(new Product("Banana", 1.0));
-        productList.add(new Product("Pineapple", 2.0));
-        productList.add(new Product("Mango", 2.0));
-        productList.add(new Product("Papaya", 2.0));
-        productList.add(new Product("Pumpkin", 1.0));
-        productList.add(new Product("Potato", 1.0));
-        productList.add(new Product("Tomato", 1.0));
-        productList.add(new Product("Onion", 1.0));
+        productList.add(new Product("Bread", 120.0));
+        productList.add(new Product("Milk", 300.0));
+        productList.add(new Product("Biscuit", 180.0));
+        productList.add(new Product("Chocolate", 250.0));
+        productList.add(new Product("Butter", 350.0));
+        productList.add(new Product("Cheese", 580.0));
+        productList.add(new Product("Egg", 30.0));
+        productList.add(new Product("Yogurt", 60.0));
+        productList.add(new Product("Ice Cream", 800.0));
+        productList.add(new Product("Cake", 1200.0));
+        productList.add(new Product("Apple", 120.0));
+        productList.add(new Product("Orange", 100.0));
+        productList.add(new Product("Banana", 350.0));
+        productList.add(new Product("Pineapple", 200.0));
+        productList.add(new Product("Mango", 60.0));
+        productList.add(new Product("Papaya", 180.0));
+        productList.add(new Product("Pumpkin", 150.0));
+        productList.add(new Product("Potato", 100.0));
+        productList.add(new Product("Tomato", 150.0));
+        productList.add(new Product("Onion", 180.0));
 
         cashierList = new ArrayList<>();
         for (int i = 0; i < noOfCashiers; i++) {
@@ -56,9 +60,11 @@ public class Shop {
             managerList.add(new Thread(new Manager(i,this)));
         }
 
+        shipmentList = new ArrayList<>();
         checkoutQueue = new LinkedBlockingQueue<>();
         newStockQueue = new LinkedBlockingQueue<>();
         restockQueue = new HashSet<>();
+        salesList = new ArrayList<>();
 
         noOfShipments = 0;
     }
@@ -85,6 +91,9 @@ public class Shop {
 
         try {
             for (Thread thread : cashierList) {
+                thread.join();
+            }
+            for (Thread thread : shipmentList) {
                 thread.join();
             }
             for (Thread thread : managerList) {
@@ -117,24 +126,50 @@ public class Shop {
         return isOpen;
     }
 
-    public Set<Product> getRestockQueue() {
-        return restockQueue;
+    public synchronized void addProductToRestockQueue(Product product){
+        restockQueueLock.lock();
+        try {
+            restockQueue.add(product);
+        } finally {
+            restockQueueLock.unlock();
+        }
     }
 
-    public void addProductToRestockQueue(Product product){
-        restockQueue.add(product);
-        System.out.println(product.getName() + " added to restock queue");
-    }
+    public synchronized void requestNewShipmentIfNeeded(Manager manager) {
+        restockQueueLock.lock();
+        try {
+            if (restockQueue.size() > 5){
+                System.out.println(manager.getName() + " is requesting new shipment");
 
-    public BlockingQueue<Item> getNewStockQueue() {
-        return newStockQueue;
+                ArrayList<Product> restockNeededProducts = new ArrayList<>(restockQueue);
+                restockQueue.clear();
+
+                Thread shipment = new Thread(new Shipment(++noOfShipments, this, restockNeededProducts));
+                shipment.setPriority(10);
+                shipmentList.add(shipment);
+                shipment.start();
+
+                System.out.println(manager.getName() + " is done requesting new shipment");
+            }
+        } finally {
+            restockQueueLock.unlock();
+        }
     }
 
     public void addProductToNewStock(Item item){
         newStockQueue.add(item);
     }
 
-    public int recordNewShipment(){
-        return ++noOfShipments;
+    public synchronized void restockProduct(Manager manager){
+        if (newStockQueue.size() > 0){
+            Item item = newStockQueue.poll();
+
+            if (item != null){
+                Product product = item.getProduct();
+                product.addStock(item.getQuantity());
+
+                System.out.println(manager.getName() + " restocked " + product.getName() + " with " + item.getQuantity() + " items");
+            }
+        }
     }
 }

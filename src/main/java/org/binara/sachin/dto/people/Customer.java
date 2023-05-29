@@ -10,8 +10,8 @@ import java.util.LinkedList;
 public class Customer implements Runnable{
     private final int id;
     private final Shop shop;
-    private LinkedList<Item> shoppingList;
-    private LinkedList<Item> cart;
+    private final LinkedList<Item> shoppingList;
+    private final LinkedList<Item> cart;
 
     public Customer(int id, Shop shop) {
         this.id = id;
@@ -58,9 +58,12 @@ public class Customer implements Runnable{
             Util.sleepRandomTime(1000); //Assumption: Customer will take random amount of time to add products to cart
         }
 
-        shop.moveToCheckoutQueue(this);
-        System.out.println(this.getName() + " is done shopping and went to checkout queue");
-        Thread.yield();
+        if (cart.size() > 0) {
+            shop.moveToCheckoutQueue(this);
+            System.out.println(this.getName() + " is done shopping and went to checkout queue");
+        } else {
+            System.out.println(this.getName() + " didn't find anything to buy");
+        }
     }
 
     public void addProductToCart(Item item) {

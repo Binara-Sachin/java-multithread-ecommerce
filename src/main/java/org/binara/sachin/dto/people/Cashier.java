@@ -1,5 +1,6 @@
 package org.binara.sachin.dto.people;
 
+import org.binara.sachin.dto.Item;
 import org.binara.sachin.dto.Shop;
 
 import java.util.Objects;
@@ -32,18 +33,22 @@ public class Cashier implements Runnable{
     public void checkoutCustomer(Customer customer) {
         System.out.println(this.getName() + " is Checking out " + customer.getName());
 
-        customer.getCart().forEach(cartItem -> {
+        double total = 0;
+
+        for (Item cartItem : customer.getCart()) {
             System.out.println(this.getName() + " added " + cartItem.getQuantity() + " " + cartItem.getProduct().getName() + " to " + customer.getName() + "'s checkout cart");
 
             try {
                 cartItem.getProduct().purchase(cartItem.getQuantity());
+                total += cartItem.getProduct().getPrice() * cartItem.getQuantity();
             } catch (IllegalArgumentException e) {
                 System.out.println("Not enough stock for " + cartItem.getProduct().getName());
                 shop.addProductToRestockQueue(cartItem.getProduct());
+                System.out.println(this.getName() + " added " + cartItem.getProduct().getName() + " to the restock queue");
             }
-        });
+        }
 
-        System.out.println("Done checking out " + customer.getName());
+        System.out.println("Done checking out " + customer.getName() + " Total: Rs." + total);
     }
 
     public String getName() {
