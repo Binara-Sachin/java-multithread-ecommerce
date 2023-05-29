@@ -58,4 +58,14 @@ public class Product {
         }
     }
 
+    public boolean checkRestockNeeded(){
+        readWriteLock.readLock().lock();
+
+        try {
+            return stockAmount < Constants.RESTOCK_REQUEST_THRESHOLD;
+        } finally {
+            readWriteLock.readLock().unlock();
+        }
+    }
+
 }

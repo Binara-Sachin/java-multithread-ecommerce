@@ -1,5 +1,6 @@
 package org.binara.sachin.dto;
 
+import org.binara.sachin.constants.Constants;
 import org.binara.sachin.dto.people.Cashier;
 import org.binara.sachin.dto.people.Customer;
 import org.binara.sachin.dto.people.Manager;
@@ -20,7 +21,7 @@ public class Shop {
     ReentrantLock restockQueueLock = new ReentrantLock();
     private final BlockingQueue<Customer> checkoutQueue;
     private final BlockingQueue<Item> newStockQueue;
-    private final ArrayList<Long> salesList;
+    private final ArrayList<Double> salesList;
     private int noOfShipments;
     private boolean isOpen;
 
@@ -104,6 +105,7 @@ public class Shop {
         }
 
         System.out.println("Shop is closed");
+        printSummary();
     }
 
     public ArrayList<Product> getProductList() {
@@ -160,7 +162,7 @@ public class Shop {
         newStockQueue.add(item);
     }
 
-    public synchronized void restockProduct(Manager manager){
+    public synchronized void addNewStocksToShop(Manager manager){
         if (newStockQueue.size() > 0){
             Item item = newStockQueue.poll();
 
@@ -171,5 +173,24 @@ public class Shop {
                 System.out.println(manager.getName() + " restocked " + product.getName() + " with " + item.getQuantity() + " items");
             }
         }
+    }
+
+    public void addSale(double sale){
+        salesList.add(sale);
+    }
+
+    private double calculateTotalSales(){
+        double totalSales = 0;
+        for (Double sale : salesList) {
+            totalSales += sale;
+        }
+        return totalSales;
+    }
+
+    private void printSummary(){
+        System.out.println("\n\n========================================");
+        System.out.println("Total customers: " + Constants.NUMBER_OF_CUSTOMERS);
+        System.out.println("Total sales: Rs." + calculateTotalSales());
+        System.out.println("Total shipments: " + noOfShipments);
     }
 }

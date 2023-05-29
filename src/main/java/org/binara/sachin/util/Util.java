@@ -16,7 +16,7 @@ public class Util {
     }
 
     public static int getRandomNumberLessThan(int max) {
-        return (int) (Math.random() * max);
+        return (int) (Math.random() * (max - 1) + 1);
     }
 
     public static void sleepRandomTime(int maxTime) {

@@ -41,6 +41,11 @@ public class Cashier implements Runnable{
             try {
                 cartItem.getProduct().purchase(cartItem.getQuantity());
                 total += cartItem.getProduct().getPrice() * cartItem.getQuantity();
+
+                if (cartItem.getProduct().checkRestockNeeded()){
+                    shop.addProductToRestockQueue(cartItem.getProduct());
+                    System.out.println(this.getName() + " added " + cartItem.getProduct().getName() + " to the restock queue");
+                }
             } catch (IllegalArgumentException e) {
                 System.out.println("Not enough stock for " + cartItem.getProduct().getName());
                 shop.addProductToRestockQueue(cartItem.getProduct());
@@ -48,6 +53,7 @@ public class Cashier implements Runnable{
             }
         }
 
+        shop.addSale(total);
         System.out.println("Done checking out " + customer.getName() + " Total: Rs." + total);
     }
 
