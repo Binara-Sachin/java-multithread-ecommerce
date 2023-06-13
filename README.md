@@ -79,5 +79,8 @@
 ## How to run
 
 - Run `Main.java` file
+
+# Improvements
+- Add a timestamp to the cart item to identify the time the item was added to the cart. Will give more fairness to the system by giving priority ot the first customer who added the item to their cart.
 ---
 Project By: `Binara Sachin`
