@@ -6,7 +6,7 @@ import org.binara.sachin.dto.Shop;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public class Cashier implements Runnable{
+public class Cashier implements Runnable {
     private final int id;
     private final Shop shop;
 
@@ -17,7 +17,7 @@ public class Cashier implements Runnable{
 
     @Override
     public void run() {
-        while (shop.isOpen()){
+        while (shop.isOpen()) {
             try {
                 Customer customer = shop.getCheckoutQueue().poll(1, TimeUnit.SECONDS);
 
@@ -42,7 +42,7 @@ public class Cashier implements Runnable{
                 cartItem.getProduct().purchase(cartItem.getQuantity());
                 total += cartItem.getProduct().getPrice() * cartItem.getQuantity();
 
-                if (cartItem.getProduct().checkRestockNeeded()){
+                if (cartItem.getProduct().checkRestockNeeded()) {
                     shop.addProductToRestockQueue(cartItem.getProduct());
                     System.out.println(this.getName() + " added " + cartItem.getProduct().getName() + " to the restock queue");
                 }

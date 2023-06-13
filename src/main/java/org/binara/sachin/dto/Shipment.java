@@ -5,7 +5,7 @@ import org.binara.sachin.util.Util;
 
 import java.util.ArrayList;
 
-public class Shipment implements Runnable{
+public class Shipment implements Runnable {
     private final int id;
     private final Shop shop;
     private final ArrayList<Product> products;

@@ -35,7 +35,7 @@ public class Product {
         }
     }
 
-    public void addStock(int amount){
+    public void addStock(int amount) {
         readWriteLock.writeLock().lock();
 
         try {
@@ -45,11 +45,11 @@ public class Product {
         }
     }
 
-    public void purchase(int amount){
+    public void purchase(int amount) {
         readWriteLock.writeLock().lock();
 
         try {
-            if (amount > stockAmount){
+            if (amount > stockAmount) {
                 throw new IllegalArgumentException("Stock amount cannot be less than zero");
             }
             stockAmount -= amount;
@@ -58,7 +58,7 @@ public class Product {
         }
     }
 
-    public boolean checkRestockNeeded(){
+    public boolean checkRestockNeeded() {
         readWriteLock.readLock().lock();
 
         try {

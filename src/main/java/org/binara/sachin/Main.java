@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        Shop shop = new Shop(Constants.NUMBER_OF_CASHIERS,Constants.NUMBER_OF_MANAGERS); // No of cashiers and managers can be changed in the constants class
+        Shop shop = new Shop(Constants.NUMBER_OF_CASHIERS, Constants.NUMBER_OF_MANAGERS); // No of cashiers and managers can be changed in the constants class
         shop.openShop();
 
         int noOfCustomers = Constants.NUMBER_OF_CUSTOMERS; // No of customers can be changed in the constants class
@@ -30,7 +30,7 @@ public class Main {
             }
         }
 
-        while (shop.getCustomersInShop() > 0){
+        while (shop.getCustomersInShop() > 0) {
             Util.sleep(1000);
         }
 

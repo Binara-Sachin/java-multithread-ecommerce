@@ -53,12 +53,12 @@ public class Shop {
 
         cashierList = new ArrayList<>();
         for (int i = 0; i < noOfCashiers; i++) {
-            cashierList.add(new Thread(new Cashier(i,this)));
+            cashierList.add(new Thread(new Cashier(i, this)));
         }
 
         managerList = new ArrayList<>();
         for (int i = 0; i < noOfManagers; i++) {
-            managerList.add(new Thread(new Manager(i,this)));
+            managerList.add(new Thread(new Manager(i, this)));
         }
 
         shipmentList = new ArrayList<>();
@@ -116,11 +116,11 @@ public class Shop {
         return checkoutQueue;
     }
 
-    public void moveToCheckoutQueue(Customer customer){
+    public void moveToCheckoutQueue(Customer customer) {
         checkoutQueue.add(customer);
     }
 
-    public int getCustomersInShop(){
+    public int getCustomersInShop() {
         return checkoutQueue.size();
     }
 
@@ -128,7 +128,7 @@ public class Shop {
         return isOpen;
     }
 
-    public synchronized void addProductToRestockQueue(Product product){
+    public synchronized void addProductToRestockQueue(Product product) {
         restockQueueLock.lock();
         try {
             restockQueue.add(product);
@@ -140,7 +140,7 @@ public class Shop {
     public synchronized void requestNewShipmentIfNeeded(Manager manager) {
         restockQueueLock.lock();
         try {
-            if (restockQueue.size() > 5){
+            if (restockQueue.size() > 5) {
                 System.out.println(manager.getName() + " is requesting new shipment");
 
                 ArrayList<Product> restockNeededProducts = new ArrayList<>(restockQueue);
@@ -158,15 +158,15 @@ public class Shop {
         }
     }
 
-    public void addProductToNewStock(Item item){
+    public void addProductToNewStock(Item item) {
         newStockQueue.add(item);
     }
 
-    public synchronized void addNewStocksToShop(Manager manager){
-        if (newStockQueue.size() > 0){
+    public synchronized void addNewStocksToShop(Manager manager) {
+        if (newStockQueue.size() > 0) {
             Item item = newStockQueue.poll();
 
-            if (item != null){
+            if (item != null) {
                 Product product = item.getProduct();
                 product.addStock(item.getQuantity());
 
@@ -175,11 +175,11 @@ public class Shop {
         }
     }
 
-    public void addSale(double sale){
+    public void addSale(double sale) {
         salesList.add(sale);
     }
 
-    private double calculateTotalSales(){
+    private double calculateTotalSales() {
         double totalSales = 0;
         for (Double sale : salesList) {
             totalSales += sale;
@@ -187,7 +187,7 @@ public class Shop {
         return totalSales;
     }
 
-    private void printSummary(){
+    private void printSummary() {
         System.out.println("\n\n========================================");
         System.out.println("Total customers: " + Constants.NUMBER_OF_CUSTOMERS);
         System.out.println("Total sales: Rs." + calculateTotalSales());
